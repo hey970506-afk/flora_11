@@ -73,8 +73,10 @@ header {
   color: var(--green);
 }
 .brand-name {
-  font: 27px var(--serif);
-  letter-spacing: 5px;
+  font: 400 38px/1.2 "STFangsong","华文仿宋","FangSong","仿宋",var(--serif);
+  letter-spacing: 4px;
+  white-space: nowrap;
+  color: var(--green);
 }
 .date {
   color: var(--muted);
@@ -401,7 +403,7 @@ dialog h2 {
     display: none;
   }
   .brand-name {
-    font-size: 25px;
+    font-size: 34px;
   }
   .sheet {
     padding: 29px 25px 22px;
@@ -463,7 +465,7 @@ dialog h2 {
     gap: 7px;
   }
   .brand-name {
-    font-size: 23px;
+    font-size: 32px;
   }
   h1 {
     font-size: 25px;
@@ -805,9 +807,6 @@ header {
     gap: 12px;
   }
 }
-.brand-name {
-  font-weight: 700;
-}
 input[type=text] {
   font-family: var(--serif);
   font-size: 18px;
@@ -895,7 +894,7 @@ input[type=text]::placeholder {
 .frame-corner>g>g {
   stroke-width: 2.8;
 }
-.brand svg g {
+.brand > svg g {
   stroke-width: 2;
 }
 .empty-line g {
@@ -1096,7 +1095,15 @@ dialog,
   position: relative;
   flex: 0 0 46px;
   min-height: 54px;
+  gap: 2px;
 }
+.completion-label {
+  font: 11px/1.3 var(--ui);
+  color: #687858;
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+.task.done .completion-label { color: #7a806d; }
 .task input[type=checkbox] {
   position: absolute;
   inset: 0;
@@ -1203,6 +1210,22 @@ dialog,
     opacity: .085;
   }
 }
+/* 每条任务独立选择心情，未选择时只显示一个轻量入口。 */
+.mood-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 24px; padding: 0 0 4px; border: 0; background: transparent; color: #687858; font: 11px/20px var(--ui); letter-spacing: .025em; }
+.mood-toggle:hover { color: var(--green); }
+.mood-toggle[aria-expanded=true] { color: var(--green); text-decoration: underline; text-underline-offset: 4px; }
+.mood-options { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; padding: 9px; background: #eef0e1; border: 1px solid #c7cfb4; border-radius: 4px; }
+.mood-option { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 34px; padding: 5px 9px; border: 1px solid transparent; background: transparent; color: #637151; font: 12px/1.5 var(--ui); }
+.mood-option:hover { background: #e4e9d5; }
+.mood-option[aria-pressed=true] { background: #dfe7cf; border-color: #9aaa7d; color: #405438; }
+.mood-icon { display: inline-block; flex: 0 0 auto; width: 16px; height: 16px; overflow: visible; vertical-align: middle; }
+.task-actions { position: relative; }
+.row-mood-toggle { min-height: 44px; padding: 10px 8px; font-size: 12px; line-height: 1.5; white-space: nowrap; }
+.row-mood-options { position: absolute; top: calc(100% + 4px); right: 0; z-index: 5; width: 280px; max-width: calc(100vw - 60px); margin: 0; background: var(--paper); border-color: #9aaa7d; box-shadow: 0 8px 22px #3442381c; }
+.edit-mood { margin-top: 16px; }
+.edit-mood .mood-toggle { font-size: 12px; min-height: 30px; }
+@media(max-width:600px) { .task { flex-wrap: wrap; } .task-content { flex-basis: calc(100% - 50px); } .task-actions { margin-left: auto; margin-top: -6px; } }
+@media(max-width:420px) { .mood-option { padding-left: 7px; padding-right: 7px; } .row-mood-toggle { padding-left: 7px; padding-right: 7px; } }
 </style>
 </head>
 <body>
@@ -1222,23 +1245,31 @@ dialog,
 <div class="list-tools"><p class="sort-note">按截止日期排列，已完成置后</p><button id="toggle-completed" class="text-button" type="button" aria-pressed="false" hidden>隐藏已完成</button></div>
 <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
 <ul id="task-list" class="task-list" aria-label="任务清单"></ul>
-<div id="empty" class="empty"><svg class="empty-line" viewBox="0 0 100 80" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1"><path d="M50 76V35M50 60C24 63 17 38 21 34c3 14 29 10 29 26ZM50 71c26 1 34-23 29-29-3 14-29 14-29 29ZM50 41C28 39 31 16 37 11c0 15 13 16 13 26 0-10 13-11 13-26 6 5 9 28-13 30ZM50 33C38 20 48 7 50 4c2 3 12 16 0 29Z"/><path d="M9 74c12-9 19 5 31 0M91 74c-12-9-19 5-31 0" stroke="#ac8d55"/></g></svg><h2 id="empty-title">从一件小事开始</h2><p id="empty-text">日期可留空，完成后打勾。</p></div>
+<div id="empty" class="empty"><svg class="empty-line" viewBox="0 0 100 80" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1"><path d="M50 76V35M50 60C24 63 17 38 21 34c3 14 29 10 29 26ZM50 71c26 1 34-23 29-29-3 14-29 14-29 29ZM50 41C28 39 31 16 37 11c0 15 13 16 13 26 0-10 13-11 13-26 6 5 9 28-13 30ZM50 33C38 20 48 7 50 4c2 3 12 16 0 29Z"/><path d="M9 74c12-9 19 5 31 0M91 74c-12-9-19 5-31 0" stroke="#ac8d55"/></g></svg><h2 id="empty-title">从一件小事开始</h2><p id="empty-text">写下任务后，轻点花苞即可完成。</p></div>
 
 </main>
 </div>
 <p class="page-end" aria-hidden="true">花序 · 日常有序</p>
 <div id="undo-bar" class="undo-bar" role="status" hidden><span id="undo-message"></span><button id="undo" type="button">撤销删除</button></div>
-<dialog id="edit-dialog" aria-labelledby="edit-heading"><form id="edit-form" novalidate><h2 id="edit-heading">编辑任务</h2><label class="edit-label" for="edit-name">任务名称<input id="edit-name" type="text" maxlength="100" required aria-describedby="edit-error"></label><div class="edit-label">截止日期<span class="date-control"><input id="edit-date" type="hidden" value=""><button id="edit-date-trigger" class="date-trigger" type="button" aria-label="选择截止日期" aria-haspopup="dialog" aria-expanded="false" aria-controls="edit-calendar"><span id="edit-date-display" class="date-display" aria-hidden="true"><span>年</span><i>/</i><span>月</span><i>/</i><span>日</span></span><svg class="date-icon" viewBox="0 0 20 22" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="4" width="16" height="16" rx="2"/><path d="M6 2v5m8-5v5M2 10h16m-11 4h2m3 0h2m-7 3h2"/></g></svg></button></span></div><p id="edit-error" class="edit-error" role="alert" hidden></p><div class="dialog-actions"><button id="edit-cancel" class="secondary" type="button">取消</button><button class="primary" type="submit">保存修改</button></div></form></dialog>
+<dialog id="edit-dialog" aria-labelledby="edit-heading"><form id="edit-form" novalidate><h2 id="edit-heading">编辑任务</h2><label class="edit-label" for="edit-name">任务名称<input id="edit-name" type="text" maxlength="100" required aria-describedby="edit-error"></label><div class="edit-label">截止日期<span class="date-control"><input id="edit-date" type="hidden" value=""><button id="edit-date-trigger" class="date-trigger" type="button" aria-label="选择截止日期" aria-haspopup="dialog" aria-expanded="false" aria-controls="edit-calendar"><span id="edit-date-display" class="date-display" aria-hidden="true"><span>年</span><i>/</i><span>月</span><i>/</i><span>日</span></span><svg class="date-icon" viewBox="0 0 20 22" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="4" width="16" height="16" rx="2"/><path d="M6 2v5m8-5v5M2 10h16m-11 4h2m3 0h2m-7 3h2"/></g></svg></button></span></div><div class="edit-mood"><input id="edit-mood" type="hidden" value=""><button id="edit-mood-toggle" class="mood-toggle" type="button" aria-expanded="false" aria-controls="edit-mood-options">心情 · 不标记</button><div id="edit-mood-options" class="mood-options" role="group" aria-label="编辑任务心情，可选" hidden></div></div><p id="edit-error" class="edit-error" role="alert" hidden></p><div class="dialog-actions"><button id="edit-cancel" class="secondary" type="button">取消</button><button class="primary" type="submit">保存修改</button></div></form></dialog>
 <script>
 "use strict";
 (() => {
   // 保留首版存储键，避免视觉改版造成原有任务无法读取。
   const STORAGE_KEY = "ke-jian.study-tasks.v1";
+  const MOODS = Object.freeze([
+    {value:"happy",label:"开心",face:"M7 14C9 18 15 18 17 14",eyes:"M7 9L9 9M15 9L17 9"},
+    {value:"tired",label:"疲惫",face:"M9 16H15",eyes:"M6.5 10H10M14 10H17.5"},
+    {value:"anxious",label:"焦虑",face:"M8 17C10 13 14 13 16 17",eyes:"M7 8L10 10M14 10L17 8"},
+    {value:"calm",label:"平静",face:"M9 15C11 17 13 17 15 15",eyes:"M6.5 10C8 11 9 11 10.5 10M13.5 10C15 11 16 11 17.5 10"}
+  ]);
+  const moodFor = value => MOODS.find(mood => mood.value === value);
   const $ = id => document.getElementById(id);
   let tasks = [], hideCompleted = false, editingId = null, lastDay = "";
   const pendingDeletes = new Map();
   const bloomingTasks = new Map();
   const taskRows = new Map();
+  let activeMoodId = null, moodPanelSerial = 0;
   let activeCalendar = null;
 
   // 输入法回车只确认选字，下一次普通回车才提交表单。
@@ -1274,7 +1305,8 @@ dialog,
     if(raw !== null) {
       const data = JSON.parse(raw), ids = new Set();
       if(!Array.isArray(data) || !data.every(t => t && typeof t.id === "string" && !ids.has(t.id) && ids.add(t.id) && typeof t.title === "string" && t.title.trim().length > 0 && t.title.length <= 100 && typeof t.done === "boolean" && typeof t.date === "string" && validDate(t.date) && Number.isFinite(t.created))) throw new Error("invalid data");
-      tasks = data;
+      // 旧版没有心情字段也可读取；未知标记只按未选择处理，保留任务本身。
+      tasks = data.map(task => ({...task,mood:moodFor(task.mood)?.value || ""}));
     }
   } catch {
     warning("未能读取本地记录，原记录尚未覆盖。如有重要数据，请保留浏览器数据；新添加或修改任务后会尝试重新保存。");
@@ -1290,6 +1322,45 @@ dialog,
   function feedback(message, error = false) {
     $("form-message").textContent = message;
     $("form-message").className = "form-message" + (error ? " error" : "");
+  }
+  function moodIcon(mood) {
+    const ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns,"svg");
+    svg.setAttribute("class","mood-icon"); svg.setAttribute("viewBox","0 0 24 24"); svg.setAttribute("aria-hidden","true"); svg.setAttribute("focusable","false");
+    const group = document.createElementNS(ns,"g");
+    for(const [key,value] of Object.entries({fill:"none",stroke:"currentColor","stroke-width":"1.5","stroke-linecap":"round","stroke-linejoin":"round"})) group.setAttribute(key,value);
+    const circle = document.createElementNS(ns,"circle"); circle.setAttribute("cx","12"); circle.setAttribute("cy","12"); circle.setAttribute("r","9"); group.append(circle);
+    for(const d of [mood.eyes,mood.face]) {const path = document.createElementNS(ns,"path"); path.setAttribute("d",d); group.append(path);}
+    svg.append(group); return svg;
+  }
+  function syncMoodPicker(prefix) {
+    const mood = moodFor($(prefix+"-mood").value), toggle = $(prefix+"-mood-toggle"), options = $(prefix+"-mood-options");
+    toggle.replaceChildren(); if(mood) toggle.append(moodIcon(mood));
+    const text = document.createElement("span"); text.textContent = mood ? mood.label : "心情 · 不标记"; toggle.append(text);
+    toggle.setAttribute("aria-label", `任务心情：${mood ? mood.label : "未标记"}，点击选择`);
+    for(const option of options.children) option.setAttribute("aria-pressed", String(option.dataset.mood === (mood?.value || "")));
+  }
+  function closeMoodPicker(prefix) {$(prefix+"-mood-options").hidden = true; $(prefix+"-mood-toggle").setAttribute("aria-expanded","false");}
+  function fillMoodOptions(options, choose) {
+    for(const mood of [{value:"",label:"不标记"},...MOODS]) {
+      const option = document.createElement("button"); option.type = "button"; option.className = "mood-option"; option.dataset.mood = mood.value;
+      option.setAttribute("aria-label", mood.value ? `心情：${mood.label}` : "不标记心情");
+      if(mood.value) option.append(moodIcon(mood));
+      const text = document.createElement("span"); text.textContent = mood.label; option.append(text);
+      option.addEventListener("click", () => choose(mood.value));
+      options.append(option);
+    }
+  }
+  function installMoodPicker(prefix) {
+    const toggle = $(prefix+"-mood-toggle"), options = $(prefix+"-mood-options");
+    fillMoodOptions(options, value => {$(prefix+"-mood").value = value; syncMoodPicker(prefix); closeMoodPicker(prefix); toggle.focus();});
+    toggle.addEventListener("click", () => {options.hidden = !options.hidden; toggle.setAttribute("aria-expanded",String(!options.hidden));});
+    options.addEventListener("keydown", e => {if(e.key === "Escape") {e.preventDefault(); e.stopPropagation(); closeMoodPicker(prefix); toggle.focus();}});
+    closeMoodPicker(prefix); syncMoodPicker(prefix);
+  }
+  installMoodPicker("edit");
+  function closeRowMood(restoreFocus = false) {
+    const row = taskRows.get(activeMoodId); activeMoodId = null;
+    if(row) {row.moodOptions.hidden = true; row.moodToggle.setAttribute("aria-expanded","false"); if(restoreFocus) row.moodToggle.focus();}
   }
   function syncDateDisplays() {
     for(const id of ["task-date", "edit-date"]) {
@@ -1433,9 +1504,11 @@ dialog,
   for(const id of ["task-date", "edit-date"]) createCalendar(id);
   document.addEventListener("pointerdown", e => {
     if(activeCalendar && !activeCalendar.panel.contains(e.target) && !activeCalendar.trigger.contains(e.target)) activeCalendar.close(false);
+    const row = taskRows.get(activeMoodId); if(row && !row.actions.contains(e.target)) closeRowMood();
   });
   document.addEventListener("focusin", e => {
     if(activeCalendar && !activeCalendar.panel.contains(e.target) && !activeCalendar.trigger.contains(e.target)) activeCalendar.close(false);
+    const row = taskRows.get(activeMoodId); if(row && !row.actions.contains(e.target)) closeRowMood();
   });
   window.addEventListener("resize", () => activeCalendar?.position());
   window.addEventListener("scroll", () => activeCalendar?.position(), true);
@@ -1453,6 +1526,7 @@ dialog,
     $("undo-message").textContent = pendingDeletes.size > 1 ? `已删除${pendingDeletes.size}项任务，可依次撤销` : "已删除任务，8秒内可撤销";
   }
   function deleteTask(task) {
+    if(activeMoodId === task.id) closeRowMood();
     const bloom = bloomingTasks.get(task.id);
     if(bloom) {clearTimeout(bloom.timer); bloomingTasks.delete(task.id);}
     tasks = tasks.filter(t => t.id !== task.id);
@@ -1462,9 +1536,12 @@ dialog,
     $("undo").focus();
   }
   function openEdit(task) {
+    closeRowMood();
     editingId = task.id;
     $("edit-name").value = task.title;
     $("edit-date").value = task.date;
+    $("edit-mood").value = moodFor(task.mood)?.value || "";
+    syncMoodPicker("edit"); closeMoodPicker("edit");
     syncDateDisplays();
     $("edit-error").hidden = true;
     $("edit-dialog").showModal();
@@ -1519,7 +1596,8 @@ dialog,
       const label = document.createElement("label");
       const check = document.createElement("input"); check.type = "checkbox";
       check.addEventListener("change", () => changeCompletion(task,check.checked));
-      label.append(check,taskFlower());
+      const completionLabel = document.createElement("span"); completionLabel.className = "completion-label"; completionLabel.setAttribute("aria-hidden","true");
+      label.append(check,taskFlower(),completionLabel);
       const content = document.createElement("div"); content.className = "task-content";
       const title = document.createElement("div"); title.className = "task-title";
       const meta = document.createElement("div"); meta.className = "task-meta";
@@ -1529,24 +1607,46 @@ dialog,
       edit.addEventListener("click", () => openEdit(task));
       const del = document.createElement("button"); del.type = "button"; del.className = "row-action delete"; del.textContent = "删除";
       del.addEventListener("click", () => deleteTask(task));
-      actions.append(edit,del); li.append(label,content,actions);
-      row = {li,label,check,title,meta,edit,del,metaKey:""}; taskRows.set(task.id,row);
+      const moodToggle = document.createElement("button"); moodToggle.type = "button"; moodToggle.className = "mood-toggle row-mood-toggle";
+      const moodOptions = document.createElement("div"); moodOptions.className = "mood-options row-mood-options"; moodOptions.id = `row-mood-options-${++moodPanelSerial}`; moodOptions.hidden = true;
+      moodOptions.setAttribute("role","group"); moodOptions.setAttribute("aria-label","选择此任务的心情，可选");
+      moodToggle.setAttribute("aria-controls",moodOptions.id); moodToggle.setAttribute("aria-expanded","false");
+      moodToggle.addEventListener("click", () => {
+        if(activeMoodId === task.id) {closeRowMood(true); return;}
+        closeRowMood(); activeMoodId = task.id; moodOptions.hidden = false; moodToggle.setAttribute("aria-expanded","true");
+        const selected = Array.from(moodOptions.children).find(option => option.dataset.mood === (moodFor(task.mood)?.value || "")); selected?.focus();
+      });
+      fillMoodOptions(moodOptions, value => {task.mood = value; save(); closeRowMood(); render(); moodToggle.focus(); feedback(value ? `已记录${moodFor(value).label}的心情。` : "已清除这条任务的心情。");});
+      moodOptions.addEventListener("keydown", e => {if(e.key === "Escape") {e.preventDefault(); e.stopPropagation(); closeRowMood(true);}});
+      actions.append(edit,del,moodToggle,moodOptions); li.append(label,content,actions);
+      row = {li,label,check,completionLabel,title,meta,edit,del,actions,moodToggle,moodOptions,moodKey:null,metaKey:""}; taskRows.set(task.id,row);
     }
     const bloom = bloomingTasks.get(task.id);
     row.li.className = "task" + (task.done ? " done" : "");
     row.label.className = "check-area" + (bloom ? bloom.to ? " bloom-opening" : " bloom-closing" : "");
     row.check.checked = task.done;
+    row.completionLabel.textContent = task.done ? "已完成" : "待完成";
+    row.label.title = task.done ? "点击花朵恢复待办" : "点击花苞标记完成";
+    row.check.setAttribute("title",row.label.title);
     row.check.setAttribute("aria-label", `${task.done ? "标为待完成" : "完成任务"}：${task.title}`);
     row.edit.setAttribute("aria-label", `编辑任务：${task.title}`);
     row.del.setAttribute("aria-label", `删除任务：${task.title}`);
     if(row.title.textContent !== task.title) row.title.textContent = task.title;
+    const mood = moodFor(task.mood);
+    const moodKey = mood?.value || "";
+    if(row.moodKey !== moodKey) {
+      row.moodKey = moodKey; row.moodToggle.replaceChildren(); if(mood) row.moodToggle.append(moodIcon(mood));
+      const text = document.createElement("span"); text.textContent = mood ? mood.label : "心情"; row.moodToggle.append(text);
+      for(const option of row.moodOptions.children) option.setAttribute("aria-pressed",String(option.dataset.mood === moodKey));
+    }
+    row.moodToggle.setAttribute("aria-label", `设置任务心情：${task.title}，当前${mood ? mood.label : "未标记"}`);
     const metaKey = `${task.date}|${task.done}|${today}`;
     if(row.metaKey !== metaKey) {
-      row.metaKey = metaKey; row.meta.replaceChildren(); row.meta.hidden = !task.date && !task.done;
+      row.metaKey = metaKey; row.meta.replaceChildren(); row.meta.hidden = !task.date;
       if(task.date) {const date = document.createElement("span"); date.textContent = `截止 ${task.date.replaceAll("-",".")}`; row.meta.append(date);}
-      if(task.done || (task.date && task.date <= today)) {
-        const status = document.createElement("span"); status.textContent = task.done ? "已完成" : task.date === today ? "今天截止" : "已逾期";
-        status.className = task.done ? "" : task.date === today ? "today" : "overdue"; row.meta.append(status);
+      if(!task.done && task.date && task.date <= today) {
+        const status = document.createElement("span"); status.textContent = task.date === today ? "今天截止" : "已逾期";
+        status.className = task.date === today ? "today" : "overdue"; row.meta.append(status);
       }
     }
     return row.li;
@@ -1572,6 +1672,7 @@ dialog,
       if(!existingIds.has(id)) {row.li.remove(); taskRows.delete(id);}
     }
     const visibleIds = new Set(visible.map(task => task.id));
+    if(activeMoodId && !visibleIds.has(activeMoodId)) closeRowMood();
     for(const li of Array.from(list.children)) if(!visibleIds.has(li.dataset.id)) li.remove();
     visible.forEach((task,index) => {
       const li = updateTaskRow(task,today), current = list.children[index];
@@ -1579,13 +1680,13 @@ dialog,
     });
     $("empty").hidden = visible.length > 0;
     $("empty-title").textContent = tasks.length === 0 ? "从一件小事开始" : "待办已完成";
-    $("empty-text").textContent = tasks.length === 0 ? "日期可留空，完成后打勾。" : "可以记下新的安排，或点击“显示已完成”查看记录。";
+    $("empty-text").textContent = tasks.length === 0 ? "写下任务后，轻点花苞即可完成。" : "可以记下新的安排，或点击“显示已完成”查看记录。";
   }
   $("task-form").addEventListener("submit", e => {
     e.preventDefault();
     const error = validate($("task-name"), $("task-date"));
     if(error) {feedback(error, true); ($("task-name").value.trim() && $("task-name").value.trim().length <= 100 ? $("task-date-trigger") : $("task-name")).focus(); return;}
-    tasks.push({id:globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`, title:$("task-name").value.trim(), date:$("task-date").value, done:false, created:Date.now()});
+    tasks.push({id:globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`, title:$("task-name").value.trim(), date:$("task-date").value, mood:"", done:false, created:Date.now()});
     save(); render(); $("task-form").reset(); syncDateDisplays(); $("task-name").focus(); feedback("已添加任务。");
   });
   $("toggle-completed").addEventListener("click", () => {hideCompleted = !hideCompleted; render();});
@@ -1604,7 +1705,7 @@ dialog,
     if(error) {$("edit-error").textContent = error; $("edit-error").hidden = false; return;}
     const task = tasks.find(t => t.id === editingId);
     if(!task) {$("edit-dialog").close(); return;}
-    task.title = $("edit-name").value.trim(); task.date = $("edit-date").value;
+    task.title = $("edit-name").value.trim(); task.date = $("edit-date").value; task.mood = moodFor($("edit-mood").value)?.value || "";
     save(); render(); $("edit-dialog").close(); focusTask(task.id, "button"); feedback("已保存修改。");
   });
   $("edit-cancel").addEventListener("click", () => $("edit-dialog").close());
